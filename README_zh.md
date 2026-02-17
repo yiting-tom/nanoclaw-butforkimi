@@ -22,8 +22,8 @@ NanoClaw 用一个你能在 8 分钟内理解的代码库，为你提供了同�
 ## 快速上手
 
 ```bash
-git clone https://github.com/gavrielc/nanoclaw.git
-cd nanoclaw
+git clone https://github.com/yiting-tom/nanoclaw-butforkimi.git
+cd nanoclaw-butforkimi
 claude
 ```
 

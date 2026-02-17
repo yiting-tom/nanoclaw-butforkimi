@@ -32,7 +32,7 @@ src/container-runner.ts               container/agent-runner/
 | **Main app logs** | `logs/nanoclaw.log` | Host-side WhatsApp, routing, container spawning |
 | **Main app errors** | `logs/nanoclaw.error.log` | Host-side errors |
 | **Container run logs** | `groups/{folder}/logs/container-*.log` | Per-run: input, mounts, stderr, stdout |
-| **Claude sessions** | `~/.claude/projects/` | Claude Code session history |
+| **Kimi sessions** | `data/sessions/{group}/.kimi/` | Per-group Kimi CLI session history |
 
 ## Enabling Debug Logging
 

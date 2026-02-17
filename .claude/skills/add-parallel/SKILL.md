@@ -13,7 +13,7 @@ Adds Parallel AI MCP integration to NanoClaw for advanced web research capabilit
 User must have:
 1. Parallel AI API key from https://platform.parallel.ai
 2. NanoClaw already set up and running
-3. Container system working (Apple Container or Docker)
+3. Container system working (Docker)
 
 ## Implementation Steps
 
@@ -74,7 +74,7 @@ const allowedVars = ['KIMI_API_KEY'];
 
 Replace with:
 ```typescript
-const allowedVars = ['CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY', 'PARALLEL_API_KEY'];
+const allowedVars = ['KIMI_API_KEY', 'PARALLEL_API_KEY'];
 ```
 
 ### 4. Configure MCP Servers in Agent Runner
@@ -224,14 +224,9 @@ Build the container with updated agent runner:
 ./container/build.sh
 ```
 
-The build script will automatically:
-- Try Apple Container first
-- Fall back to Docker if Rosetta is required
-- Import to Apple Container
-
 Verify the build:
 ```bash
-echo '{}' | container run -i --entrypoint /bin/echo nanoclaw-agent:latest "Container OK"
+echo '{}' | docker run -i --rm --entrypoint /bin/echo nanoclaw-agent:latest "Container OK"
 ```
 
 ### 7. Restart Service

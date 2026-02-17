@@ -416,14 +416,14 @@ NanoClaw has a built-in scheduler that runs tasks as full agents in their group'
 ```
 User: @hal remind me every Monday at 9am to review the weekly metrics
 
-Claude: [calls mcp__nanoclaw__schedule_task]
+Kimi: [calls mcp__nanoclaw__schedule_task]
         {
           "prompt": "Send a reminder to review weekly metrics. Be encouraging!",
           "schedule_type": "cron",
           "schedule_value": "0 9 * * 1"
         }
 
-Claude: Done! I'll remind you every Monday at 9am.
+Kimi: Done! I'll remind you every Monday at 9am.
 ```
 
 ### One-Time Tasks
@@ -431,7 +431,7 @@ Claude: Done! I'll remind you every Monday at 9am.
 ```
 User: @hal at 5pm today, send me a summary of today's emails
 
-Claude: [calls mcp__nanoclaw__schedule_task]
+Kimi: [calls mcp__nanoclaw__schedule_task]
         {
           "prompt": "Search for today's emails, summarize the important ones, and send the summary to the group.",
           "schedule_type": "once",
@@ -562,7 +562,7 @@ All agents run inside Docker (lightweight Linux VMs), providing:
 
 ### Prompt Injection Risk
 
-WhatsApp messages could contain malicious instructions attempting to manipulate Claude's behavior.
+WhatsApp messages could contain malicious instructions attempting to manipulate the agent's behavior.
 
 **Mitigations:**
 - Container isolation limits blast radius
@@ -570,7 +570,7 @@ WhatsApp messages could contain malicious instructions attempting to manipulate 
 - Trigger word required (reduces accidental processing)
 - Agents can only access their group's mounted directories
 - Main can configure additional directories per group
-- Kimi's built-in safety training
+- Kimi K2.5's built-in safety training
 
 **Recommendations:**
 - Only register trusted groups
@@ -582,7 +582,7 @@ WhatsApp messages could contain malicious instructions attempting to manipulate 
 
 | Credential | Storage Location | Notes |
 |------------|------------------|-------|
-| Claude CLI Auth | data/sessions/{group}/.claude/ | Per-group isolation, mounted to /home/node/.claude/ |
+| Kimi CLI Auth | data/sessions/{group}/.kimi/ | Per-group isolation, mounted to /home/node/.kimi/ |
 | WhatsApp Session | store/auth/ | Auto-created, persists ~20 days |
 
 ### File Permissions

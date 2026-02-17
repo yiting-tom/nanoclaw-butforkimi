@@ -9,7 +9,7 @@
  */
 
 // @ts-ignore - SDK available in container environment only
-import { tool } from '@anthropic-ai/claude-agent-sdk';
+import { tool } from '@moonshot-ai/kimi-agent-sdk';
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';

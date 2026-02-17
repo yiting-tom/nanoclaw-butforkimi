@@ -10,5 +10,5 @@
 ## For Skills
 
 - [ ] I have not made any changes to source code
-- [ ] My skill contains instructions for Claude to follow (not pre-built code)
+- [ ] My skill contains instructions for the AI to follow (not pre-built code)
 - [ ] I tested this skill on a fresh clone

@@ -115,7 +115,7 @@ First, determine the phone number situation. Get the bot's WhatsApp number from 
 
 AskUserQuestion: Does the bot share your personal WhatsApp number, or does it have its own dedicated phone number?
 
-AskUserQuestion: What trigger word? (default: hal). In group chats, messages starting with @TriggerWord go to Claude. In the main channel, no prefix needed.
+AskUserQuestion: What trigger word? (default: hal). In group chats, messages starting with @TriggerWord go to Kimi. In the main channel, no prefix needed.
 
 AskUserQuestion: Main channel type? (options depend on phone number setup)
 
@@ -199,7 +199,7 @@ Show the log tail command: `tail -f logs/nanoclaw.log`
 
 **Service not starting:** Check `logs/nanoclaw.error.log`. Common causes: wrong Node path in plist (re-run step 10), missing `.env` (re-run step 4), missing WhatsApp auth (re-run step 5).
 
-**Container agent fails ("Claude Code process exited with code 1"):** Ensure the container runtime is running — start it: `container system start` (Apple Container) or `open -a Docker` (macOS Docker). Check container logs in `groups/main/logs/container-*.log`.
+**Container agent fails ("Kimi CLI exited with code 1"):** Ensure the container runtime is running — start Docker: `open -a Docker` (macOS) or `sudo systemctl start docker` (Linux). Check container logs in `groups/main/logs/container-*.log`.
 
 **No response to messages:** Verify the trigger pattern matches. Main channel and personal/solo chats don't need a prefix. Check the registered JID in the database: `sqlite3 store/messages.db "SELECT * FROM registered_groups"`. Check `logs/nanoclaw.log`.
 
