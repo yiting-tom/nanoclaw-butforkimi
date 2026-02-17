@@ -84,9 +84,11 @@ Run `./.claude/skills/setup/scripts/03-setup-container.sh --runtime <chosen>` an
 
 ## 4. Kimi Authentication (No Script)
 
-If HAS_ENV=true from step 1, read `.env` and check if it already has `KIMI_API_KEY`. If so, confirm with user: "You already have Kimi credentials configured. Want to keep them or reconfigure?" If keeping, skip to step 5.
+If HAS_ENV=true from step 1, read `.env` and check if it already has `KIMI_API_KEY` or `MOONSHOT_API_KEY`. If so, confirm with user: "You already have Kimi credentials configured. Want to keep them or reconfigure?" If keeping, skip to step 5.
 
 Tell the user to get their API key from [Moonshot AI Platform](https://platform.moonshot.ai/) and add `KIMI_API_KEY=<key>` to the `.env` file in the project root, then let you know when done.
+
+**Note:** Some setups may use `MOONSHOT_API_KEY` instead. The system accepts either. If one doesn't work, try the other.
 
 Do NOT ask the user to paste the key into the chat. Just tell them what to do, then wait for confirmation that they've added it to `.env`. Once confirmed, verify the `.env` file has the key.
 
@@ -131,7 +133,7 @@ Do NOT show options that don't apply to the user's setup. For example, don't off
 
 ## 7. Sync and Select Group (If Group Channel)
 
-**For personal chat:** The JID is the bot's own phone number from step 6. Construct as `NUMBER@s.whatsapp.net`.
+**For personal chat (self-chat):** The JID should be the full ID from `creds.json`. Use: `node -e "const c=require('./store/auth/creds.json');console.log(c.me.id)"`. This will give you the correct format like `NUMBER:DEVICE@s.whatsapp.net`.
 
 **For DM with bot's dedicated number:** Ask for the bot's phone number, construct JID as `NUMBER@s.whatsapp.net`.
 

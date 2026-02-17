@@ -53,10 +53,10 @@ elif command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
 fi
 log "Container runtime: $CONTAINER_RUNTIME"
 
-# 3. Check credentials
+# 3. Check credentials (accepts KIMI_API_KEY or MOONSHOT_API_KEY)
 CREDENTIALS="missing"
 if [ -f "$PROJECT_ROOT/.env" ]; then
-  if grep -qE "^KIMI_API_KEY=" "$PROJECT_ROOT/.env" 2>/dev/null; then
+  if grep -qE "^(KIMI_API_KEY|MOONSHOT_API_KEY)=" "$PROJECT_ROOT/.env" 2>/dev/null; then
     CREDENTIALS="configured"
   fi
 fi
