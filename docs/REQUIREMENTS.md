@@ -65,19 +65,19 @@ The project uses Docker for cross-platform container execution (macOS and Linux)
 
 ## Vision
 
-A personal Claude assistant accessible via WhatsApp, with minimal custom code.
+A personal Kimi K2.5 assistant accessible via WhatsApp, with minimal custom code.
 
 **Core components:**
-- **Claude Agent SDK** as the core agent
+- **Kimi Agent SDK** as the core agent
 - **Docker** for isolated agent execution (containers)
 - **WhatsApp** as the primary I/O channel
 - **Persistent memory** per conversation and globally
-- **Scheduled tasks** that run Claude and can message back
+- **Scheduled tasks** that run Kimi and can message back
 - **Web access** for search and browsing
 - **Browser automation** via agent-browser
 
 **Implementation approach:**
-- Use existing tools (WhatsApp connector, Claude Agent SDK, MCP servers)
+- Use existing tools (WhatsApp connector, Kimi Agent SDK, MCP servers)
 - Minimal glue code
 - File-based systems where possible (CLAUDE.md for memory, folders for groups)
 
@@ -98,7 +98,7 @@ A personal Claude assistant accessible via WhatsApp, with minimal custom code.
 - Agent runs in the group's folder, automatically inherits both CLAUDE.md files
 
 ### Session Management
-- Each group maintains a conversation session (via Claude Agent SDK)
+- Each group maintains a conversation session (via Kimi Agent SDK)
 - Sessions auto-compact when context gets too long, preserving critical information
 
 ### Container Isolation
@@ -109,7 +109,7 @@ A personal Claude assistant accessible via WhatsApp, with minimal custom code.
 - Browser automation via agent-browser with Chromium in the container
 
 ### Scheduled Tasks
-- Users can ask Claude to schedule recurring or one-time tasks from any group
+- Users can ask the assistant to schedule recurring or one-time tasks from any group
 - Tasks run as full agents in the context of the group that created them
 - Tasks have access to all tools including Bash (safe in container)
 - Tasks can optionally send messages to their group via `send_message` tool, or complete silently
@@ -146,11 +146,11 @@ A personal Claude assistant accessible via WhatsApp, with minimal custom code.
 - Tools: `schedule_task`, `list_tasks`, `pause_task`, `resume_task`, `cancel_task`, `send_message`
 - Tasks stored in SQLite with run history
 - Scheduler loop checks for due tasks every minute
-- Tasks execute Claude Agent SDK in containerized group context
+- Tasks execute Kimi Agent SDK in containerized group context
 
 ### Web Access
 - Built-in WebSearch and WebFetch tools
-- Standard Claude Agent SDK capabilities
+- Standard Kimi Agent SDK capabilities
 
 ### Browser Automation
 - agent-browser CLI with Chromium in container
@@ -184,7 +184,7 @@ These are the creator's settings, stored here for reference:
 
 - **Trigger**: `@hal` (case insensitive)
 - **Response prefix**: `hal:`
-- **Persona**: Default Claude (no custom personality)
+- **Persona**: Default Kimi (no custom personality)
 - **Main channel**: Self-chat (messaging yourself in WhatsApp)
 
 ---

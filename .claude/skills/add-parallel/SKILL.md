@@ -69,7 +69,7 @@ Add `PARALLEL_API_KEY` to allowed environment variables in `src/container-runner
 
 Find the line:
 ```typescript
-const allowedVars = ['CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'];
+const allowedVars = ['KIMI_API_KEY'];
 ```
 
 Replace with:

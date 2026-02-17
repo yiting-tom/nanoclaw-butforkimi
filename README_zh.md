@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  我的个人 Claude 助手，安全地运行在容器中。它轻巧、易于理解，并可根据你自己的需求进行定制。
+  我的个人 Kimi K2.5 助手，安全地运行在容器中。它轻巧、易于理解，并可根据你自己的需求进行定制。
 </p>
 
 <p align="center">
@@ -43,16 +43,16 @@ claude
 
 **技能（Skills）优于功能（Features）:** 贡献者不应该向代码库添加新功能（例如支持 Telegram）。相反，他们应该贡献像 `/add-telegram` 这样的 [Claude Code 技能](https://code.claude.com/docs/en/skills)，这些技能可以改造你的 fork。最终，你得到的是只做你需要事情的整洁代码。
 
-**最好的工具套件，最好的模型:** 本项目运行在 Claude Agent SDK 之上，这意味着你直接运行的就是 Claude Code。工具套件至关重要。一个糟糕的套件即使是聪明的模型也会显得愚笨，而一个好的套件则能赋予它们超能力。Claude Code (在我看来) 是市面上最好的工具套件。
+**最好的工具套件，最好的模型:** 本项目运行在 Kimi Agent SDK 之上，使用 Moonshot AI 的 Kimi K2.5 模型。工具套件至关重要。一个糟糕的套件即使是聪明的模型也会显得愚笨，而一个好的套件则能赋予它们超能力。
 
 ## 功能支持
 
-- **WhatsApp 输入/输出** - 通过手机给 Claude 发消息
+- **WhatsApp 输入/输出** - 通过手机给 Kimi 发消息
 - **隔离的群组上下文** - 每个群组都有其独立的 `CLAUDE.md` 记忆、隔离的文件系统，并在其自己的容器沙箱中运行，只挂载该文件系统
 - **主频道** - 你的私有频道（self-chat），用于管理控制；其他所有群组都完全隔离
-- **计划任务** - 运行 Claude 的周期性作业，并可以给你回发消息
+- **计划任务** - 运行 Kimi 的周期性作业，并可以给你回发消息
 - **网络访问** - 搜索和抓取网页内容
-- **容器隔离** - 智能体在 Apple Container (macOS) 或 Docker (macOS/Linux) 的沙箱中运行
+- **容器隔离** - 智能体在 Docker 容器 (macOS/Linux) 的沙箱中运行
 - **智能体集群（Agent Swarms）** - 启动多个专业智能体团队，协作完成复杂任务（首个支持此功能的个人 AI 助手）
 - **可选集成** - 通过技能添加 Gmail (`/add-gmail`) 等更多功能
 
@@ -107,19 +107,19 @@ claude
 - `/setup-windows` - 通过 WSL2 + Docker 支持 Windows
 
 **会话管理**
-- `/add-clear` - 添加一个 `/clear` 命令，用于压缩会话（在同一会话中总结上下文，同时保留关键信息）。这需要研究如何通过 Claude Agent SDK 以编程方式触发压缩。
+- `/add-clear` - 添加一个 `/clear` 命令，用于压缩会话（在同一会话中总结上下文，同时保留关键信息）。这需要研究如何通过 Kimi Agent SDK 以编程方式触发压缩。
 
 ## 系统要求
 
 - macOS 或 Linux
 - Node.js 20+
 - [Claude Code](https://claude.ai/download)
-- [Apple Container](https://github.com/apple/container) (macOS) 或 [Docker](https://docker.com/products/docker-desktop) (macOS/Linux)
+- [Docker](https://docker.com/products/docker-desktop)
 
 ## 架构
 
 ```
-WhatsApp (baileys) --> SQLite --> 轮询循环 --> 容器 (Claude Agent SDK) --> 响应
+WhatsApp (baileys) --> SQLite --> 轮询循环 --> 容器 (Kimi Agent SDK) --> 响应
 ```
 
 单一 Node.js 进程。智能体在具有挂载目录的隔离 Linux 容器中执行。每个群组独立的消息队列，带全局并发控制。通过文件系统进行进程间通信（IPC）。
@@ -141,13 +141,13 @@ WhatsApp (baileys) --> SQLite --> 轮询循环 --> 容器 (Claude Agent SDK) -->
 
 因为我用 WhatsApp。fork 这个项目然后运行一个技能来改变它。正是这个项目的核心理念。
 
-**为什么是 Apple Container 而不是 Docker？**
+**为什么用 Docker？**
 
-在 macOS 上，Apple Container 轻巧、快速，并为 Apple 芯片优化。但 Docker 也完全支持——在 `/setup` 期间，你可以选择使用哪个运行时。在 Linux 上，会自动使用 Docker。
+Docker 提供跨平台支持（macOS 和 Linux）、庞大的生态系统和成熟的工具链。macOS 上的 Docker Desktop 使用轻量级 Linux 虚拟机，类似于其他容器解决方案。
 
 **我可以在 Linux 上运行吗？**
 
-可以。运行 `/setup`，它会自动配置 Docker 作为容器运行时。感谢 [@dotsetgreg](https://github.com/dotsetgreg) 贡献了 `/convert-to-docker` 技能。
+可以。NanoClaw 使用 Docker，在 macOS 和 Linux 上都能运行。只需安装 Docker 并运行 `/setup`。
 
 **这个安全吗？**
 

@@ -1,4 +1,6 @@
-# Claude Agent SDK Deep Dive
+# Claude Agent SDK Deep Dive [DEPRECATED]
+
+> **Note:** NanoClaw has migrated from Claude Agent SDK to Kimi Agent SDK (`@moonshot-ai/kimi-agent-sdk`). This document is kept for historical reference only.
 
 Findings from reverse-engineering `@anthropic-ai/claude-agent-sdk` v0.2.29–0.2.34 to understand how `query()` works, why agent teams subagents were being killed, and how to fix it. Supplemented with official SDK reference docs.
 

@@ -56,7 +56,7 @@ log "Container runtime: $CONTAINER_RUNTIME"
 # 3. Check credentials
 CREDENTIALS="missing"
 if [ -f "$PROJECT_ROOT/.env" ]; then
-  if grep -qE "^(CLAUDE_CODE_OAUTH_TOKEN|ANTHROPIC_API_KEY)=" "$PROJECT_ROOT/.env" 2>/dev/null; then
+  if grep -qE "^(KIMI_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|ANTHROPIC_API_KEY)=" "$PROJECT_ROOT/.env" 2>/dev/null; then
     CREDENTIALS="configured"
   fi
 fi

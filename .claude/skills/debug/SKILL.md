@@ -14,17 +14,16 @@ Host (macOS/Linux)                    Container (Docker)
 ─────────────────────────────────────────────────────────────
 src/container-runner.ts               container/agent-runner/
     │                                      │
-    │ spawns Docker container              │ runs Claude Agent SDK
+    │ spawns Docker container              │ runs Kimi Agent SDK
     │ with volume mounts                   │ with MCP servers
     │                                      │
-    ├── data/env/env ──────────────> /workspace/env-dir/env
     ├── groups/{folder} ───────────> /workspace/group
     ├── data/ipc/{folder} ────────> /workspace/ipc
-    ├── data/sessions/{folder}/.claude/ ──> /home/node/.claude/ (isolated per-group)
+    ├── data/sessions/{folder}/.kimi/ ──> /home/node/.kimi/ (isolated per-group)
     └── (main only) project root ──> /workspace/project
 ```
 
-**Important:** The container runs as user `node` with `HOME=/home/node`. Session files must be mounted to `/home/node/.claude/` (not `/root/.claude/`) for session resumption to work.
+**Important:** The container runs as user `node` with `HOME=/home/node`. Session files must be mounted to `/home/node/.kimi/` (not `/root/.kimi/`) for session resumption to work.
 
 ## Log Locations
 
@@ -55,7 +54,7 @@ Debug level shows:
 
 ## Common Issues
 
-### 1. "Claude Code process exited with code 1"
+### 1. "Kimi CLI exited with code 1" or "LLM is not set"
 
 **Check the container log file** in `groups/{folder}/logs/container-*.log`
 
@@ -63,13 +62,12 @@ Common causes:
 
 #### Missing Authentication
 ```
-Invalid API key · Please run /login
+LLM is not set
 ```
-**Fix:** Ensure `.env` file exists with either OAuth token or API key:
+**Fix:** Ensure `.env` file exists with Kimi API key:
 ```bash
-cat .env  # Should show one of:
-# CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...  (subscription)
-# ANTHROPIC_API_KEY=sk-ant-api03-...        (pay-per-use)
+cat .env  # Should show:
+# KIMI_API_KEY=sk-...
 ```
 
 #### Root User Restriction
@@ -80,14 +78,12 @@ cat .env  # Should show one of:
 
 ### 2. Environment Variables Not Passing
 
-The system extracts only authentication variables (`CLAUDE_CODE_OAUTH_TOKEN`, `ANTHROPIC_API_KEY`) from `.env` and mounts them for sourcing inside the container. Other env vars are not exposed.
+The system extracts the `KIMI_API_KEY` from `.env` and passes it as a secret to the container. Inside the container, the agent-runner writes it to `~/.kimi/config.toml` with provider/model configuration.
 
-To verify env vars are reaching the container:
+To verify the API key is reaching the container:
 ```bash
-echo '{}' | docker run -i \
-  -v $(pwd)/data/env:/workspace/env-dir:ro \
-  --entrypoint /bin/bash nanoclaw-agent:latest \
-  -c 'export $(cat /workspace/env-dir/env | xargs); echo "OAuth: ${#CLAUDE_CODE_OAUTH_TOKEN} chars, API: ${#ANTHROPIC_API_KEY} chars"'
+echo '{"prompt":"test","groupFolder":"test","chatJid":"test@g.us","isMain":false,"secrets":{"KIMI_API_KEY":"your-key"}}' | \
+  docker run -i --rm nanoclaw-agent:latest 2>&1 | head -5
 ```
 
 ### 3. Mount Issues
@@ -104,7 +100,7 @@ docker run --rm --entrypoint /bin/bash nanoclaw-agent:latest -c 'ls -la /workspa
 Expected structure:
 ```
 /workspace/
-├── env-dir/env           # Environment file (CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY)
+├── env-dir/env           # Environment file (KIMI_API_KEY)
 ├── group/                # Current group folder (cwd)
 ├── project/              # Project root (main channel only)
 ├── global/               # Global CLAUDE.md (non-main only)
@@ -129,35 +125,32 @@ docker run --rm --entrypoint /bin/bash nanoclaw-agent:latest -c '
 
 All of `/workspace/` and `/app/` should be owned by `node`.
 
-### 5. Session Not Resuming / "Claude Code process exited with code 1"
+### 5. Session Not Resuming / "Kimi CLI exited with code 1"
 
-If sessions aren't being resumed (new session ID every time), or Claude Code exits with code 1 when resuming:
+If sessions aren't being resumed (new session ID every time), or Kimi CLI exits with code 1 when resuming:
 
-**Root cause:** The SDK looks for sessions at `$HOME/.claude/projects/`. Inside the container, `HOME=/home/node`, so it looks at `/home/node/.claude/projects/`.
+**Root cause:** The SDK looks for sessions at `$HOME/.kimi/sessions/`. Inside the container, `HOME=/home/node`, so it looks at `/home/node/.kimi/sessions/`.
 
 **Check the mount path:**
 ```bash
-# In container-runner.ts, verify mount is to /home/node/.claude/, NOT /root/.claude/
-grep -A3 "Claude sessions" src/container-runner.ts
+# In container-runner.ts, verify mount is to /home/node/.kimi/, NOT /root/.kimi/
+grep -A3 "Kimi sessions" src/container-runner.ts
 ```
 
-**Verify sessions are accessible:**
-```bash
-docker run --rm --entrypoint /bin/bash \
-  -v ~/.claude:/home/node/.claude \
-  nanoclaw-agent:latest -c '
-echo "HOME=$HOME"
-ls -la $HOME/.claude/projects/ 2>&1 | head -5
-'
-```
-
-**Fix:** Ensure `container-runner.ts` mounts to `/home/node/.claude/`:
+**Fix:** Ensure `container-runner.ts` mounts to `/home/node/.kimi/`:
 ```typescript
 mounts.push({
-  hostPath: claudeDir,
-  containerPath: '/home/node/.claude',  // NOT /root/.claude
+  hostPath: kimiDir,
+  containerPath: '/home/node/.kimi',  // NOT /root/.kimi
   readonly: false
 });
+```
+
+**Clear corrupted sessions:**
+If you get "Expecting value: line 1 column 1" errors, clear the stale session data:
+```bash
+rm -rf data/sessions/{groupFolder}/.kimi/sessions/
+sqlite3 store/messages.db "DELETE FROM sessions WHERE group_folder = '{groupFolder}'"
 ```
 
 ### 6. MCP Server Failures
@@ -181,13 +174,11 @@ echo '{"prompt":"What is 2+2?","groupFolder":"test","chatJid":"test@g.us","isMai
   nanoclaw-agent:latest
 ```
 
-### Test Claude Code directly:
+### Test Kimi CLI directly:
 ```bash
-docker run --rm --entrypoint /bin/bash \
-  -v $(pwd)/data/env:/workspace/env-dir:ro \
-  nanoclaw-agent:latest -c '
-  export $(cat /workspace/env-dir/env | xargs)
-  claude -p "Say hello" --dangerously-skip-permissions --allowedTools ""
+docker run --rm --entrypoint /bin/bash nanoclaw-agent:latest -c '
+  kimi --version
+  kimi info
 '
 ```
 
@@ -198,23 +189,18 @@ docker run --rm -it --entrypoint /bin/bash nanoclaw-agent:latest
 
 ## SDK Options Reference
 
-The agent-runner uses these Claude Agent SDK options:
+The agent-runner uses these Kimi Agent SDK options:
 
 ```typescript
-query({
-  prompt: input.prompt,
-  options: {
-    cwd: '/workspace/group',
-    allowedTools: ['Bash', 'Read', 'Write', ...],
-    permissionMode: 'bypassPermissions',
-    allowDangerouslySkipPermissions: true,  // Required with bypassPermissions
-    settingSources: ['project'],
-    mcpServers: { ... }
-  }
+createSession({
+  workDir: '/workspace/group',
+  sessionId,
+  model: 'k25',          // Defined in config.toml
+  yoloMode: true,         // Auto-approve all tool calls
 })
 ```
 
-**Important:** `allowDangerouslySkipPermissions: true` is required when using `permissionMode: 'bypassPermissions'`. Without it, Claude Code exits with code 1.
+The Kimi config.toml (written at startup) defines the provider, model, and API key. MCP servers are configured via `~/.kimi/mcp.json`.
 
 ## Rebuilding After Changes
 
@@ -241,8 +227,8 @@ docker run --rm --entrypoint /bin/bash nanoclaw-agent:latest -c '
   echo "=== Node version ==="
   node --version
 
-  echo "=== Claude Code version ==="
-  claude --version
+  echo "=== Kimi CLI version ==="
+  kimi --version
 
   echo "=== Installed packages ==="
   ls /app/node_modules/
@@ -251,12 +237,12 @@ docker run --rm --entrypoint /bin/bash nanoclaw-agent:latest -c '
 
 ## Session Persistence
 
-Claude sessions are stored per-group in `data/sessions/{group}/.claude/` for security isolation. Each group has its own session directory, preventing cross-group access to conversation history.
+Kimi sessions are stored per-group in `data/sessions/{group}/.kimi/` for security isolation. Each group has its own session directory, preventing cross-group access to conversation history.
 
 **Critical:** The mount path must match the container user's HOME directory:
 - Container user: `node`
 - Container HOME: `/home/node`
-- Mount target: `/home/node/.claude/` (NOT `/root/.claude/`)
+- Mount target: `/home/node/.kimi/` (NOT `/root/.kimi/`)
 
 To clear sessions:
 
@@ -265,7 +251,7 @@ To clear sessions:
 rm -rf data/sessions/
 
 # Clear sessions for a specific group
-rm -rf data/sessions/{groupFolder}/.claude/
+rm -rf data/sessions/{groupFolder}/.kimi/
 
 # Also clear the session ID from NanoClaw's tracking (stored in SQLite)
 sqlite3 store/messages.db "DELETE FROM sessions WHERE group_folder = '{groupFolder}'"
@@ -312,7 +298,7 @@ Run this to check common issues:
 echo "=== Checking NanoClaw Container Setup ==="
 
 echo -e "\n1. Authentication configured?"
-[ -f .env ] && (grep -q "CLAUDE_CODE_OAUTH_TOKEN=sk-" .env || grep -q "ANTHROPIC_API_KEY=sk-" .env) && echo "OK" || echo "MISSING - add CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY to .env"
+[ -f .env ] && grep -q "KIMI_API_KEY=sk-" .env && echo "OK" || echo "MISSING - add KIMI_API_KEY to .env"
 
 echo -e "\n2. Env file copied for container?"
 [ -f data/env/env ] && echo "OK" || echo "MISSING - will be created on first run"
@@ -324,7 +310,7 @@ echo -e "\n4. Container image exists?"
 echo '{}' | docker run -i --entrypoint /bin/echo nanoclaw-agent:latest "OK" 2>/dev/null || echo "MISSING - run ./container/build.sh"
 
 echo -e "\n5. Session mount path correct?"
-grep -q "/home/node/.claude" src/container-runner.ts 2>/dev/null && echo "OK" || echo "WRONG - should mount to /home/node/.claude/, not /root/.claude/"
+grep -q "/home/node/.kimi" src/container-runner.ts 2>/dev/null && echo "OK" || echo "WRONG - should mount to /home/node/.kimi/, not /root/.kimi/"
 
 echo -e "\n6. Groups directory?"
 ls -la groups/ 2>/dev/null || echo "MISSING - run setup"

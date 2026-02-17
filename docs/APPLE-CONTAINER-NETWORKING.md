@@ -1,4 +1,6 @@
-# Apple Container Networking Setup (macOS 26)
+# Apple Container Networking Setup (macOS 26) [DEPRECATED]
+
+> **Note:** This document is no longer relevant. NanoClaw now uses Docker, which handles networking automatically. This file is kept for historical reference only.
 
 Apple Container's vmnet networking requires manual configuration for containers to access the internet. Without this, containers can communicate with the host but cannot reach external services (DNS, HTTPS, APIs).
 

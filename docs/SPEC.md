@@ -1,6 +1,6 @@
 # NanoClaw Specification
 
-A personal Claude assistant accessible via WhatsApp, with persistent memory per conversation, scheduled tasks, and email integration.
+A personal Kimi K2.5 assistant accessible via WhatsApp, with persistent memory per conversation, scheduled tasks, and email integration.
 
 ---
 
@@ -54,7 +54,7 @@ A personal Claude assistant accessible via WhatsApp, with persistent memory per 
 │  │  Volume mounts:                                                │   │
 │  │    • groups/{name}/ → /workspace/group                         │   │
 │  │    • groups/global/ → /workspace/global/ (non-main only)        │   │
-│  │    • data/sessions/{group}/.claude/ → /home/node/.claude/      │   │
+│  │    • data/sessions/{group}/.kimi/ → /home/node/.kimi/          │   │
 │  │    • Additional dirs → /workspace/extra/*                      │   │
 │  │                                                                │   │
 │  │  Tools (all groups):                                           │   │
@@ -76,7 +76,8 @@ A personal Claude assistant accessible via WhatsApp, with persistent memory per 
 | WhatsApp Connection | Node.js (@whiskeysockets/baileys) | Connect to WhatsApp, send/receive messages |
 | Message Storage | SQLite (better-sqlite3) | Store messages for polling |
 | Container Runtime | Docker | Isolated containers for agent execution |
-| Agent | @anthropic-ai/claude-agent-sdk (0.2.29) | Run Claude with tools and MCP servers |
+| Agent | @moonshot-ai/kimi-agent-sdk | Run Kimi K2.5 with tools and MCP servers |
+| LLM Provider | Moonshot AI (api.moonshot.ai) | Kimi K2.5 model |
 | Browser Automation | agent-browser + Chromium | Web interaction and screenshots |
 | Runtime | Node.js 20+ | Host process for routing and scheduling |
 
@@ -114,7 +115,7 @@ nanoclaw/
 │   └── container-runner.ts        # Spawns agents in Dockers
 │
 ├── container/
-│   ├── Dockerfile                 # Container image (runs as 'node' user, includes Claude Code CLI)
+│   ├── Dockerfile                 # Container image (runs as 'node' user, includes Kimi CLI)
 │   ├── build.sh                   # Build script for container image
 │   ├── agent-runner/              # Code that runs inside the container
 │   │   ├── package.json
@@ -154,7 +155,7 @@ nanoclaw/
 │   └── messages.db                # SQLite database (messages, chats, scheduled_tasks, task_run_logs, registered_groups, sessions, router_state)
 │
 ├── data/                          # Application state (gitignored)
-│   ├── sessions/                  # Per-group session data (.claude/ dirs with JSONL transcripts)
+│   ├── sessions/                  # Per-group session data (.kimi/ dirs with JSONL transcripts)
 │   ├── env/env                    # Copy of .env for container mounting
 │   └── ipc/                       # Container IPC (messages/, tasks/)
 │
@@ -225,22 +226,17 @@ Additional mounts appear at `/workspace/extra/{containerPath}` inside the contai
 
 **Docker mount syntax:** Read-write mounts use `-v host:container`, readonly mounts use `-v host:container:ro`.
 
-### Claude Authentication
+### Kimi Authentication
 
-Configure authentication in a `.env` file in the project root. Two options:
+Configure authentication in a `.env` file in the project root:
 
-**Option 1: Claude Subscription (OAuth token)**
 ```bash
-CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...
-```
-The token can be extracted from `~/.claude/.credentials.json` if you're logged in to Claude Code.
-
-**Option 2: Pay-per-use API Key**
-```bash
-ANTHROPIC_API_KEY=sk-ant-api03-...
+KIMI_API_KEY=sk-...
 ```
 
-Only the authentication variables (`CLAUDE_CODE_OAUTH_TOKEN` and `ANTHROPIC_API_KEY`) are extracted from `.env` and written to `data/env/env`, then mounted into the container at `/workspace/env-dir/env` and sourced by the entrypoint script. This ensures other environment variables in `.env` are not exposed to the agent. This keeps credentials out of process listings.
+Get your API key from [Moonshot AI Platform](https://platform.moonshot.ai/).
+
+The `KIMI_API_KEY` is extracted from `.env` and passed to the container as a secret. Inside the container, the agent-runner writes it to `~/.kimi/config.toml` with the full provider and model configuration, then removes it from environment variables to prevent leakage to Bash subprocesses.
 
 ### Changing the Assistant Name
 
@@ -279,7 +275,7 @@ NanoClaw uses a hierarchical memory system based on CLAUDE.md files.
 
 1. **Agent Context Loading**
    - Agent runs with `cwd` set to `groups/{group-name}/`
-   - Claude Agent SDK with `settingSources: ['project']` automatically loads:
+   - Kimi Agent SDK automatically loads:
      - `../CLAUDE.md` (parent directory = global memory)
      - `./CLAUDE.md` (current directory = group memory)
 
@@ -298,14 +294,14 @@ NanoClaw uses a hierarchical memory system based on CLAUDE.md files.
 
 ## Session Management
 
-Sessions enable conversation continuity - Claude remembers what you talked about.
+Sessions enable conversation continuity - Kimi remembers what you talked about.
 
 ### How Sessions Work
 
 1. Each group has a session ID stored in SQLite (`sessions` table, keyed by `group_folder`)
-2. Session ID is passed to Claude Agent SDK's `resume` option
-3. Claude continues the conversation with full context
-4. Session transcripts are stored as JSONL files in `data/sessions/{group}/.claude/`
+2. Session ID is passed to Kimi Agent SDK's `resume` option
+3. Kimi continues the conversation with full context
+4. Session transcripts are stored as JSONL files in `data/sessions/{group}/.kimi/`
 
 ---
 
@@ -337,14 +333,14 @@ Sessions enable conversation continuity - Claude remembers what you talked about
    └── Build prompt with full conversation context
    │
    ▼
-7. Router invokes Claude Agent SDK:
+7. Router invokes Kimi Agent SDK:
    ├── cwd: groups/{group-name}/
    ├── prompt: conversation history + current message
    ├── resume: session_id (for continuity)
    └── mcpServers: nanoclaw (scheduler)
    │
    ▼
-8. Claude processes message:
+8. Kimi processes message:
    ├── Reads CLAUDE.md files for context
    └── Uses tools as needed (search, email, etc.)
    │
@@ -358,7 +354,7 @@ Sessions enable conversation continuity - Claude remembers what you talked about
 ### Trigger Word Matching
 
 Messages must start with the trigger pattern (default: `@hal`):
-- `@hal what's the weather?` → ✅ Triggers Claude
+- `@hal what's the weather?` → ✅ Triggers Kimi
 - `@hal help me` → ✅ Triggers (case insensitive)
 - `Hey @hal` → ❌ Ignored (trigger not at start)
 - `What's up?` → ❌ Ignored (no trigger)
@@ -383,7 +379,7 @@ This allows the agent to understand the conversation context even if it wasn't m
 
 | Command | Example | Effect |
 |---------|---------|--------|
-| `@Assistant [message]` | `@hal what's the weather?` | Talk to Claude |
+| `@Assistant [message]` | `@hal what's the weather?` | Talk to Kimi |
 
 ### Commands Available in Main Channel Only
 
@@ -574,7 +570,7 @@ WhatsApp messages could contain malicious instructions attempting to manipulate 
 - Trigger word required (reduces accidental processing)
 - Agents can only access their group's mounted directories
 - Main can configure additional directories per group
-- Claude's built-in safety training
+- Kimi's built-in safety training
 
 **Recommendations:**
 - Only register trusted groups
@@ -605,10 +601,10 @@ chmod 700 groups/
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | No response to messages | Service not running | Check `launchctl list | grep nanoclaw` |
-| "Claude Code process exited with code 1" | Docker not running | Start Docker Desktop (macOS) or `sudo systemctl start docker` (Linux) |
-| "Claude Code process exited with code 1" | Session mount path wrong | Ensure mount is to `/home/node/.claude/` not `/root/.claude/` |
+| "Kimi CLI exited with code 1" | Docker not running | Start Docker Desktop (macOS) or `sudo systemctl start docker` (Linux) |
+| "Kimi CLI exited with code 1" | Session mount path wrong | Ensure mount is to `/home/node/.kimi/` not `/root/.kimi/` |
 | Session not continuing | Session ID not saved | Check SQLite: `sqlite3 store/messages.db "SELECT * FROM sessions"` |
-| Session not continuing | Mount path mismatch | Container user is `node` with HOME=/home/node; sessions must be at `/home/node/.claude/` |
+| Session not continuing | Mount path mismatch | Container user is `node` with HOME=/home/node; sessions must be at `/home/node/.kimi/` |
 | "QR code expired" | WhatsApp session expired | Delete store/auth/ and restart |
 | "No groups registered" | Haven't added groups | Use `@hal add group "Name"` in main |
 
