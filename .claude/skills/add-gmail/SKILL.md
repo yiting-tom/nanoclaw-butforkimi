@@ -18,7 +18,7 @@ Ask the user:
 >
 > **Option 1: Tool Mode**
 > - Agent can read and send emails when you ask it to
-> - Triggered only from WhatsApp (e.g., "@Andy check my email" or "@Andy send an email to...")
+> - Triggered only from WhatsApp (e.g., "@hal check my email" or "@hal send an email to...")
 > - Simpler setup, no email polling
 >
 > **Option 2: Channel Mode**
@@ -261,11 +261,11 @@ Tell the user:
 
 > Gmail integration is set up! Test it by sending this message in your WhatsApp main channel:
 >
-> `@Andy check my recent emails`
+> `@hal check my recent emails`
 >
 > Or:
 >
-> `@Andy list my Gmail labels`
+> `@hal list my Gmail labels`
 
 Watch the logs for any errors:
 
@@ -291,11 +291,11 @@ Ask the user:
 > - You manually label emails or set up Gmail filters
 >
 > **Option B: Email Address Pattern**
-> - Emails to a specific address pattern (e.g., andy+task@gmail.com)
+> - Emails to a specific address pattern (e.g., hal+task@gmail.com)
 > - Uses Gmail's plus-addressing feature
 >
 > **Option C: Subject Prefix**
-> - Emails with a subject starting with a keyword (e.g., "[Andy]")
+> - Emails with a subject starting with a keyword (e.g., "[hal]")
 > - Anyone can trigger the agent by using the prefix
 
 Also ask:
@@ -318,7 +318,7 @@ Store their choices for implementation.
 
 ### Step 1: Complete Tool Mode First
 
-Complete all Tool Mode steps above before continuing. Verify Gmail tools work by having the user test `@Andy check my recent emails`.
+Complete all Tool Mode steps above before continuing. Verify Gmail tools work by having the user test `@hal check my recent emails`.
 
 ### Step 2: Add Email Polling Configuration
 
@@ -344,7 +344,7 @@ export const EMAIL_CHANNEL: EmailChannelConfig = {
   triggerValue: 'NanoClaw',  // the label name, address pattern, or prefix
   contextMode: 'thread',
   pollIntervalMs: 60000,  // Check every minute
-  replyPrefix: '[Andy] '
+  replyPrefix: '[hal] '
 };
 ```
 

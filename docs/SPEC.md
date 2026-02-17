@@ -45,7 +45,7 @@ A personal Claude assistant accessible via WhatsApp, with persistent memory per 
 │                       │ spawns container                             │
 │                       ▼                                              │
 ├─────────────────────────────────────────────────────────────────────┤
-│                  APPLE CONTAINER (Linux VM)                          │
+│                  DOCKER CONTAINER (Linux)                             │
 ├─────────────────────────────────────────────────────────────────────┤
 │  ┌──────────────────────────────────────────────────────────────┐   │
 │  │                    AGENT RUNNER                               │   │
@@ -75,7 +75,7 @@ A personal Claude assistant accessible via WhatsApp, with persistent memory per 
 |-----------|------------|---------|
 | WhatsApp Connection | Node.js (@whiskeysockets/baileys) | Connect to WhatsApp, send/receive messages |
 | Message Storage | SQLite (better-sqlite3) | Store messages for polling |
-| Container Runtime | Apple Container | Isolated Linux VMs for agent execution |
+| Container Runtime | Docker | Isolated containers for agent execution |
 | Agent | @anthropic-ai/claude-agent-sdk (0.2.29) | Run Claude with tools and MCP servers |
 | Browser Automation | agent-browser + Chromium | Web interaction and screenshots |
 | Runtime | Node.js 20+ | Host process for routing and scheduling |
@@ -111,7 +111,7 @@ nanoclaw/
 │   ├── mount-security.ts          # Mount allowlist validation for containers
 │   ├── whatsapp-auth.ts           # Standalone WhatsApp authentication
 │   ├── task-scheduler.ts          # Runs scheduled tasks when due
-│   └── container-runner.ts        # Spawns agents in Apple Containers
+│   └── container-runner.ts        # Spawns agents in Dockers
 │
 ├── container/
 │   ├── Dockerfile                 # Container image (runs as 'node' user, includes Claude Code CLI)
@@ -176,7 +176,7 @@ Configuration constants are in `src/config.ts`:
 ```typescript
 import path from 'path';
 
-export const ASSISTANT_NAME = process.env.ASSISTANT_NAME || 'Andy';
+export const ASSISTANT_NAME = process.env.ASSISTANT_NAME || 'hal';
 export const POLL_INTERVAL = 2000;
 export const SCHEDULER_POLL_INTERVAL = 60000;
 
@@ -196,7 +196,7 @@ export const MAX_CONCURRENT_CONTAINERS = Math.max(1, parseInt(process.env.MAX_CO
 export const TRIGGER_PATTERN = new RegExp(`^@${ASSISTANT_NAME}\\b`, 'i');
 ```
 
-**Note:** Paths must be absolute for Apple Container volume mounts to work correctly.
+**Note:** Paths must be absolute for Docker bind mounts to work correctly.
 
 ### Container Configuration
 
@@ -206,7 +206,7 @@ Groups can have additional directories mounted via `containerConfig` in the SQLi
 registerGroup("1234567890@g.us", {
   name: "Dev Team",
   folder: "dev-team",
-  trigger: "@Andy",
+  trigger: "@hal",
   added_at: new Date().toISOString(),
   containerConfig: {
     additionalMounts: [
@@ -223,7 +223,7 @@ registerGroup("1234567890@g.us", {
 
 Additional mounts appear at `/workspace/extra/{containerPath}` inside the container.
 
-**Apple Container mount syntax note:** Read-write mounts use `-v host:container`, but readonly mounts require `--mount "type=bind,source=...,target=...,readonly"` (the `:ro` suffix doesn't work).
+**Docker mount syntax:** Read-write mounts use `-v host:container`, readonly mounts use `-v host:container:ro`.
 
 ### Claude Authentication
 
@@ -240,7 +240,7 @@ The token can be extracted from `~/.claude/.credentials.json` if you're logged i
 ANTHROPIC_API_KEY=sk-ant-api03-...
 ```
 
-Only the authentication variables (`CLAUDE_CODE_OAUTH_TOKEN` and `ANTHROPIC_API_KEY`) are extracted from `.env` and written to `data/env/env`, then mounted into the container at `/workspace/env-dir/env` and sourced by the entrypoint script. This ensures other environment variables in `.env` are not exposed to the agent. This workaround is needed because Apple Container loses `-e` environment variables when using `-i` (interactive mode with piped stdin).
+Only the authentication variables (`CLAUDE_CODE_OAUTH_TOKEN` and `ANTHROPIC_API_KEY`) are extracted from `.env` and written to `data/env/env`, then mounted into the container at `/workspace/env-dir/env` and sourced by the entrypoint script. This ensures other environment variables in `.env` are not exposed to the agent. This keeps credentials out of process listings.
 
 ### Changing the Assistant Name
 
@@ -357,10 +357,10 @@ Sessions enable conversation continuity - Claude remembers what you talked about
 
 ### Trigger Word Matching
 
-Messages must start with the trigger pattern (default: `@Andy`):
-- `@Andy what's the weather?` → ✅ Triggers Claude
-- `@andy help me` → ✅ Triggers (case insensitive)
-- `Hey @Andy` → ❌ Ignored (trigger not at start)
+Messages must start with the trigger pattern (default: `@hal`):
+- `@hal what's the weather?` → ✅ Triggers Claude
+- `@hal help me` → ✅ Triggers (case insensitive)
+- `Hey @hal` → ❌ Ignored (trigger not at start)
 - `What's up?` → ❌ Ignored (no trigger)
 
 ### Conversation Catch-Up
@@ -370,7 +370,7 @@ When a triggered message arrives, the agent receives all messages since its last
 ```
 [Jan 31 2:32 PM] John: hey everyone, should we do pizza tonight?
 [Jan 31 2:33 PM] Sarah: sounds good to me
-[Jan 31 2:35 PM] John: @Andy what toppings do you recommend?
+[Jan 31 2:35 PM] John: @hal what toppings do you recommend?
 ```
 
 This allows the agent to understand the conversation context even if it wasn't mentioned in every message.
@@ -383,16 +383,16 @@ This allows the agent to understand the conversation context even if it wasn't m
 
 | Command | Example | Effect |
 |---------|---------|--------|
-| `@Assistant [message]` | `@Andy what's the weather?` | Talk to Claude |
+| `@Assistant [message]` | `@hal what's the weather?` | Talk to Claude |
 
 ### Commands Available in Main Channel Only
 
 | Command | Example | Effect |
 |---------|---------|--------|
-| `@Assistant add group "Name"` | `@Andy add group "Family Chat"` | Register a new group |
-| `@Assistant remove group "Name"` | `@Andy remove group "Work Team"` | Unregister a group |
-| `@Assistant list groups` | `@Andy list groups` | Show registered groups |
-| `@Assistant remember [fact]` | `@Andy remember I prefer dark mode` | Add to global memory |
+| `@Assistant add group "Name"` | `@hal add group "Family Chat"` | Register a new group |
+| `@Assistant remove group "Name"` | `@hal remove group "Work Team"` | Unregister a group |
+| `@Assistant list groups` | `@hal list groups` | Show registered groups |
+| `@Assistant remember [fact]` | `@hal remember I prefer dark mode` | Add to global memory |
 
 ---
 
@@ -418,7 +418,7 @@ NanoClaw has a built-in scheduler that runs tasks as full agents in their group'
 ### Creating a Task
 
 ```
-User: @Andy remind me every Monday at 9am to review the weekly metrics
+User: @hal remind me every Monday at 9am to review the weekly metrics
 
 Claude: [calls mcp__nanoclaw__schedule_task]
         {
@@ -433,7 +433,7 @@ Claude: Done! I'll remind you every Monday at 9am.
 ### One-Time Tasks
 
 ```
-User: @Andy at 5pm today, send me a summary of today's emails
+User: @hal at 5pm today, send me a summary of today's emails
 
 Claude: [calls mcp__nanoclaw__schedule_task]
         {
@@ -446,14 +446,14 @@ Claude: [calls mcp__nanoclaw__schedule_task]
 ### Managing Tasks
 
 From any group:
-- `@Andy list my scheduled tasks` - View tasks for this group
-- `@Andy pause task [id]` - Pause a task
-- `@Andy resume task [id]` - Resume a paused task
-- `@Andy cancel task [id]` - Delete a task
+- `@hal list my scheduled tasks` - View tasks for this group
+- `@hal pause task [id]` - Pause a task
+- `@hal resume task [id]` - Resume a paused task
+- `@hal cancel task [id]` - Delete a task
 
 From main channel:
-- `@Andy list all tasks` - View tasks from all groups
-- `@Andy schedule task for "Family Chat": [prompt]` - Schedule for another group
+- `@hal list all tasks` - View tasks from all groups
+- `@hal schedule task for "Family Chat": [prompt]` - Schedule for another group
 
 ---
 
@@ -484,7 +484,7 @@ NanoClaw runs as a single macOS launchd service.
 ### Startup Sequence
 
 When NanoClaw starts, it:
-1. **Ensures Apple Container system is running** - Automatically starts it if needed; kills orphaned NanoClaw containers from previous runs
+1. **Ensures Docker system is running** - Automatically starts it if needed; kills orphaned NanoClaw containers from previous runs
 2. Initializes the SQLite database (migrates from JSON files if they exist)
 3. Loads state from SQLite (registered groups, sessions, router state)
 4. Connects to WhatsApp (on `connection.open`):
@@ -522,7 +522,7 @@ When NanoClaw starts, it:
         <key>HOME</key>
         <string>{{HOME}}</string>
         <key>ASSISTANT_NAME</key>
-        <string>Andy</string>
+        <string>hal</string>
     </dict>
     <key>StandardOutPath</key>
     <string>{{PROJECT_ROOT}}/logs/nanoclaw.log</string>
@@ -557,7 +557,7 @@ tail -f logs/nanoclaw.log
 
 ### Container Isolation
 
-All agents run inside Apple Container (lightweight Linux VMs), providing:
+All agents run inside Docker (lightweight Linux VMs), providing:
 - **Filesystem isolation**: Agents can only access mounted directories
 - **Safe Bash access**: Commands run inside the container, not on your Mac
 - **Network isolation**: Can be configured per-container if needed
@@ -605,12 +605,12 @@ chmod 700 groups/
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | No response to messages | Service not running | Check `launchctl list | grep nanoclaw` |
-| "Claude Code process exited with code 1" | Apple Container failed to start | Check logs; NanoClaw auto-starts container system but may fail |
+| "Claude Code process exited with code 1" | Docker not running | Start Docker Desktop (macOS) or `sudo systemctl start docker` (Linux) |
 | "Claude Code process exited with code 1" | Session mount path wrong | Ensure mount is to `/home/node/.claude/` not `/root/.claude/` |
 | Session not continuing | Session ID not saved | Check SQLite: `sqlite3 store/messages.db "SELECT * FROM sessions"` |
 | Session not continuing | Mount path mismatch | Container user is `node` with HOME=/home/node; sessions must be at `/home/node/.claude/` |
 | "QR code expired" | WhatsApp session expired | Delete store/auth/ and restart |
-| "No groups registered" | Haven't added groups | Use `@Andy add group "Name"` in main |
+| "No groups registered" | Haven't added groups | Use `@hal add group "Name"` in main |
 
 ### Log Location
 

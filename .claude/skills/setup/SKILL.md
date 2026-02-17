@@ -123,7 +123,7 @@ First, determine the phone number situation. Get the bot's WhatsApp number from 
 
 AskUserQuestion: Does the bot share your personal WhatsApp number, or does it have its own dedicated phone number?
 
-AskUserQuestion: What trigger word? (default: Andy). In group chats, messages starting with @TriggerWord go to Claude. In the main channel, no prefix needed.
+AskUserQuestion: What trigger word? (default: hal). In group chats, messages starting with @TriggerWord go to Claude. In the main channel, no prefix needed.
 
 AskUserQuestion: Main channel type? (options depend on phone number setup)
 
@@ -158,7 +158,7 @@ Run `./.claude/skills/setup/scripts/06-register-channel.sh` with args:
 - `--trigger "@TriggerWord"` — from step 6
 - `--folder "main"` — always "main" for the first channel
 - `--no-trigger-required` — if personal chat, DM, or solo group
-- `--assistant-name "Name"` — if trigger word differs from "Andy"
+- `--assistant-name "Name"` — if trigger word differs from "hal"
 
 ## 9. Mount Allowlist
 

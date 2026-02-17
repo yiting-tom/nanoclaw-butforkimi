@@ -1,10 +1,15 @@
 # NanoClaw Agent Container
-# Runs Claude Agent SDK in isolated Linux VM with browser automation
+# Runs Kimi Agent SDK in isolated Docker container with browser automation
 
-FROM node:22-slim
+FROM python:3.12-slim
+
+# Install Node.js 22
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
 
 # Install system dependencies for Chromium
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
     chromium \
     fonts-liberation \
     fonts-noto-color-emoji \
@@ -21,7 +26,6 @@ RUN apt-get update && apt-get install -y \
     libcups2 \
     libdrm2 \
     libxshmfence1 \
-    curl \
     git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,8 +33,11 @@ RUN apt-get update && apt-get install -y \
 ENV AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Install agent-browser and claude-code globally
-RUN npm install -g agent-browser @anthropic-ai/claude-code
+# Install kimi-cli and agent-browser
+RUN pip install --break-system-packages kimi-cli && npm install -g agent-browser
+
+# Create non-root user (matching node:22-slim convention)
+RUN groupadd -g 1000 node && useradd -u 1000 -g node -m node
 
 # Create app directory
 WORKDIR /app
@@ -58,7 +65,7 @@ RUN printf '#!/bin/bash\nset -e\ncd /app && npx tsc --outDir /tmp/dist 2>&1 >&2\
 # Set ownership to node user (non-root) for writable directories
 RUN chown -R node:node /workspace
 
-# Switch to non-root user (required for --dangerously-skip-permissions)
+# Switch to non-root user
 USER node
 
 # Set working directory to group workspace
