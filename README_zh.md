@@ -27,23 +27,33 @@ cd nanoclaw-butforkimi
 claude
 ```
 
-然后运行 `/setup`。Claude Code 会处理一切：依赖安装、身份验证、容器设置、服务配置。
+然后运行 `/setup`。Kimi 会处理一切：依赖安装、身份验证、容器设置、服务配置。
 
 ## 设计哲学
 
-**小到可以理解:** 一个进程，几个源文件。没有微服务，没有消息队列，没有抽象层。让 Claude Code 带你过一遍代码。
+**小到可以理解:** 一个进程，几个源文件。没有微服务，没有消息队列，没有抽象层。让 Kimi 带你过一遍代码。
 
 **通过隔离保障安全:** 智能体运行在 Linux 容器（在 macOS 上是 Apple Container，或 Docker）中。它们只能看到被明确挂载的内容。即使是 Bash 访问也是安全的，因为命令是在容器内部执行，而不是在你的主机上。
 
-**为单一用户打造:** 这不是一个框架。这是一个完全符合我个人需求的、可工作的软件。你应该 fork 它，然后让 Claude Code 修改它以完全匹配你的需求。
+**为单一用户打造:** 这不是一个框架。这是一个完全符合我个人需求的、可工作的软件。你应该 fork 它，然后让 Kimi 修改它以完全匹配你的需求。
 
 **定制即代码修改:** 没有繁杂的配置文件。想要不同的行为？直接修改代码。代码库足够小，这样做是安全的。
 
-**AI 原生:** 无安装向导(由 Claude Code 指导安装)。无监控仪表盘(直接问 Claude 发生了什么)。无调试工具(描述问题，Claude 会修复它)。
+**AI 原生:** 无安装向导(由 Kimi 指导安装)。无监控仪表盘(直接问 Claude 发生了什么)。无调试工具(描述问题，Claude 会修复它)。
 
-**技能（Skills）优于功能（Features）:** 贡献者不应该向代码库添加新功能（例如支持 Telegram）。相反，他们应该贡献像 `/add-telegram` 这样的 [Claude Code 技能](https://code.claude.com/docs/en/skills)，这些技能可以改造你的 fork。最终，你得到的是只做你需要事情的整洁代码。
+**技能（Skills）优于功能（Features）:** 贡献者不应该向代码库添加新功能（例如支持 Telegram）。相反，他们应该贡献像 `/add-telegram` 这样的 [Kimi 技能](https://code.claude.com/docs/en/skills)，这些技能可以改造你的 fork。最终，你得到的是只做你需要事情的整洁代码。
 
 **最好的工具套件，最好的模型:** 本项目运行在 Kimi Agent SDK 之上，使用 Moonshot AI 的 Kimi K2.5 模型。工具套件至关重要。一个糟糕的套件即使是聪明的模型也会显得愚笨，而一个好的套件则能赋予它们超能力。
+
+### API 定价对比
+
+| 模型 | 输入 ($/百万 tokens) | 输出 ($/百万 tokens) | 平均成本 (4:1 比例) |
+|------|---------------------|---------------------|-------------------|
+| **Claude Opus 4.6** | $5.00 | $25.00 | ~$7.00 |
+| **Kimi K2.5** | $0.50 | $2.80 | ~$0.92 |
+| **成本倍数 (Claude/Kimi)** | **10倍** | **9倍** | **~7.6倍** |
+
+使用 Kimi K2.5 代替 Claude Opus 4.6 可节省约 **7-10倍的 API 成本**，同时在大多数任务中保持出色的性能。
 
 ## 功能支持
 
@@ -75,7 +85,7 @@ claude
 
 ## 定制
 
-没有需要学习的配置文件。直接告诉 Claude Code 你想要什么：
+没有需要学习的配置文件。直接告诉 Kimi 你想要什么：
 
 - "把触发词改成 @Bob"
 - "记住以后回答要更简短直接"
@@ -90,7 +100,7 @@ claude
 
 **不要添加功能，而是添加技能。**
 
-如果你想添加 Telegram 支持，不要创建一个 PR 同时添加 Telegram 和 WhatsApp。而是贡献一个技能文件 (`.claude/skills/add-telegram/SKILL.md`)，教 Claude Code 如何改造一个 NanoClaw 安装以使用 Telegram。
+如果你想添加 Telegram 支持，不要创建一个 PR 同时添加 Telegram 和 WhatsApp。而是贡献一个技能文件 (`.claude/skills/add-telegram/SKILL.md`)，教 Kimi 如何改造一个 NanoClaw 安装以使用 Telegram。
 
 然后用户在自己的 fork 上运行 `/add-telegram`，就能得到只做他们需要的事情的整洁代码，而不是一个试图支持所有用例的臃肿系统。
 
@@ -113,7 +123,7 @@ claude
 
 - macOS 或 Linux
 - Node.js 20+
-- [Claude Code](https://claude.ai/download)
+- [Kimi](https://claude.ai/download)
 - [Docker](https://docker.com/products/docker-desktop)
 
 ## 架构
@@ -159,7 +169,7 @@ Docker 提供跨平台支持（macOS 和 Linux）、庞大的生态系统和成�
 
 **我该如何调试问题？**
 
-问 Claude Code。"为什么计划任务没有运行？" "最近的日志里有什么？" "为什么这条消息没有得到回应？" 这就是 AI 原生的方法。
+问 Kimi。"为什么计划任务没有运行？" "最近的日志里有什么？" "为什么这条消息没有得到回应？" 这就是 AI 原生的方法。
 
 **为什么我的安装不成功？**
 

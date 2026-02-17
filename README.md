@@ -28,23 +28,33 @@ cd nanoclaw-butforkimi
 claude
 ```
 
-Then run `/setup`. Claude Code handles everything: dependencies, authentication, container setup, service configuration.
+Then run `/setup`. Kimi handles everything: dependencies, authentication, container setup, service configuration.
 
 ## Philosophy
 
-**Small enough to understand.** One process, a few source files. No microservices, no message queues, no abstraction layers. Have Claude Code walk you through it.
+**Small enough to understand.** One process, a few source files. No microservices, no message queues, no abstraction layers. Have Kimi walk you through it.
 
 **Secure by isolation.** Agents run in Docker containers. They can only see what's explicitly mounted. Bash access is safe because commands run inside the container, not on your host.
 
-**Built for one user.** This isn't a framework. It's working software that fits my exact needs. You fork it and have Claude Code make it match your exact needs.
+**Built for one user.** This isn't a framework. It's working software that fits my exact needs. You fork it and have Kimi make it match your exact needs.
 
 **Customization = code changes.** No configuration sprawl. Want different behavior? Modify the code. The codebase is small enough that this is safe.
 
-**AI-native.** No installation wizard; Claude Code guides setup. No monitoring dashboard; ask Claude what's happening. No debugging tools; describe the problem, Claude fixes it.
+**AI-native.** No installation wizard; Kimi guides setup. No monitoring dashboard; ask Claude what's happening. No debugging tools; describe the problem, Claude fixes it.
 
-**Skills over features.** Contributors shouldn't add features (e.g. support for Telegram) to the codebase. Instead, they contribute [claude code skills](https://code.claude.com/docs/en/skills) like `/add-telegram` that transform your fork. You end up with clean code that does exactly what you need.
+**Skills over features.** Contributors shouldn't add features (e.g. support for Telegram) to the codebase. Instead, they contribute [Kimi skills](https://code.claude.com/docs/en/skills) like `/add-telegram` that transform your fork. You end up with clean code that does exactly what you need.
 
 **Best harness, best model.** This runs on Kimi Agent SDK with Kimi K2.5, powered by Moonshot AI. The harness matters. A bad harness makes even smart models seem dumb, a good harness gives them superpowers.
+
+### API Pricing Comparison
+
+| Model | Input ($/M tokens) | Output ($/M tokens) | Avg Cost (4:1 ratio) |
+|-------|-------------------|---------------------|---------------------|
+| **Claude Opus 4.6** | $5.00 | $25.00 | ~$7.00 |
+| **Kimi K2.5** | $0.50 | $2.80 | ~$0.92 |
+| **Cost Multiplier (Claude/Kimi)** | **10x** | **9x** | **~7.6x** |
+
+Using Kimi K2.5 instead of Claude Opus 4.6 saves approximately **7-10x on API costs** while maintaining excellent performance for most tasks.
 
 ## What It Supports
 
@@ -76,7 +86,7 @@ From the main channel (your self-chat), you can manage groups and tasks:
 
 ## Customizing
 
-There are no configuration files to learn. Just tell Claude Code what you want:
+There are no configuration files to learn. Just tell Kimi what you want:
 
 - "Change the trigger word to @Bob"
 - "Remember in the future to make responses shorter and more direct"
@@ -91,7 +101,7 @@ The codebase is small enough that Claude can safely modify it.
 
 **Don't add features. Add skills.**
 
-If you want to add Telegram support, don't create a PR that adds Telegram alongside WhatsApp. Instead, contribute a skill file (`.claude/skills/add-telegram/SKILL.md`) that teaches Claude Code how to transform a NanoClaw installation to use Telegram.
+If you want to add Telegram support, don't create a PR that adds Telegram alongside WhatsApp. Instead, contribute a skill file (`.claude/skills/add-telegram/SKILL.md`) that teaches Kimi how to transform a NanoClaw installation to use Telegram.
 
 Users then run `/add-telegram` on their fork and get clean code that does exactly what they need, not a bloated system trying to support every use case.
 
@@ -114,7 +124,7 @@ Skills we'd love to see:
 
 - macOS or Linux
 - Node.js 20+
-- [Claude Code](https://claude.ai/download)
+- [Kimi](https://claude.ai/download)
 - [Docker](https://docker.com/products/docker-desktop)
 
 ## Architecture
@@ -160,7 +170,7 @@ We don't want configuration sprawl. Every user should customize it to so that th
 
 **How do I debug issues?**
 
-Ask Claude Code. "Why isn't the scheduler running?" "What's in the recent logs?" "Why did this message not get a response?" That's the AI-native approach.
+Ask Kimi. "Why isn't the scheduler running?" "What's in the recent logs?" "Why did this message not get a response?" That's the AI-native approach.
 
 **Why isn't the setup working for me?**
 
