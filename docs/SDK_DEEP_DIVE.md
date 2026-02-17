@@ -88,7 +88,7 @@ Full `Options` type from the official docs:
 | `mcpServers` | `Record<string, McpServerConfig>` | `{}` | MCP server configurations |
 | `model` | `string` | Default from CLI | Claude model to use |
 | `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | Structured output format |
-| `pathToClaudeCodeExecutable` | `string` | Uses built-in | Path to Claude Code executable |
+| `pathToClaudeCodeExecutable` | `string` | Uses built-in | Path to Kimi executable |
 | `permissionMode` | `PermissionMode` | `'default'` | Permission mode |
 | `plugins` | `SdkPluginConfig[]` | `[]` | Load custom plugins from local paths |
 | `resume` | `string` | `undefined` | Session ID to resume |
@@ -96,7 +96,7 @@ Full `Options` type from the official docs:
 | `sandbox` | `SandboxSettings` | `undefined` | Sandbox behavior configuration |
 | `settingSources` | `SettingSource[]` | `[]` (none) | Which filesystem settings to load. Must include `'project'` to load CLAUDE.md |
 | `stderr` | `(data: string) => void` | `undefined` | Callback for stderr output |
-| `systemPrompt` | `string \| { type: 'preset'; preset: 'claude_code'; append?: string }` | `undefined` | System prompt. Use preset to get Claude Code's prompt, with optional `append` |
+| `systemPrompt` | `string \| { type: 'preset'; preset: 'claude_code'; append?: string }` | `undefined` | System prompt. Use preset to get Kimi's prompt, with optional `append` |
 | `tools` | `string[] \| { type: 'preset'; preset: 'claude_code' }` | `undefined` | Tool configuration |
 
 ### PermissionMode

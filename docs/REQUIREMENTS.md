@@ -32,7 +32,7 @@ No configuration sprawl. If you want different behavior, modify the code. The co
 
 ### AI-Native Development
 
-I don't need an installation wizard - Claude Code guides the setup. I don't need a monitoring dashboard - I ask Claude Code what's happening. I don't need elaborate logging UIs - I ask Claude to read the logs. I don't need debugging tools - I describe the problem and Claude fixes it.
+I don't need an installation wizard - Kimi guides the setup. I don't need a monitoring dashboard - I ask Kimi what's happening. I don't need elaborate logging UIs - I ask Claude to read the logs. I don't need debugging tools - I describe the problem and Claude fixes it.
 
 The codebase assumes you have an AI collaborator. It doesn't need to be excessively self-documenting or self-debugging because Claude is always there.
 
@@ -164,8 +164,8 @@ A personal Kimi K2.5 assistant accessible via WhatsApp, with minimal custom code
 
 ### Philosophy
 - Minimal configuration files
-- Setup and customization done via Claude Code
-- Users clone the repo and run Claude Code to configure
+- Setup and customization done via Kimi
+- Users clone the repo and run Kimi to configure
 - Each user gets a custom setup matching their exact needs
 
 ### Skills

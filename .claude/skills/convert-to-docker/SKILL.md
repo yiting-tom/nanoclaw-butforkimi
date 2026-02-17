@@ -186,7 +186,7 @@ Update references in documentation files:
 
 - macOS or Linux
 - Node.js 20+
-- [Claude Code](https://claude.ai/download)
+- [Kimi](https://claude.ai/download)
 - [Docker](https://docker.com/products/docker-desktop)
 ```
 

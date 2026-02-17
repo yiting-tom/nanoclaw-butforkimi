@@ -87,7 +87,7 @@ A personal Kimi K2.5 assistant accessible via WhatsApp, with persistent memory p
 
 ```
 nanoclaw/
-├── CLAUDE.md                      # Project context for Claude Code
+├── CLAUDE.md                      # Project context for Kimi
 ├── docs/
 │   ├── SPEC.md                    # This specification document
 │   ├── REQUIREMENTS.md            # Architecture decisions
